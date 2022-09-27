@@ -26,6 +26,11 @@
             }));
         };
 
+        webSocket.onclose = (e) => {
+            document.querySelector('#chat-username').disabled = true;
+            document.querySelector('#chat-message').disabled = true;
+        };
+
         webSocket.onmessage = (e) => {
             const d = JSON.parse(e.data);
             const messageTextArea = document.querySelector('#chat-messages')
