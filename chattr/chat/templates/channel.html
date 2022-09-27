@@ -28,7 +28,9 @@
 
         webSocket.onmessage = (e) => {
             const d = JSON.parse(e.data);
-            document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.username}: ${d.message}` + '\n');
+            const messageTextArea = document.querySelector('#chat-messages')
+            messageTextArea.value += (`${d.timestamp} ${d.username}: ${d.message}` + '\n');
+            messageTextArea.scrollTop = messageTextArea.scrollHeight;
         };
 
         document.querySelector('#chat-message').onkeyup = (e) => {
