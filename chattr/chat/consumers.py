@@ -2,22 +2,21 @@ from datetime import datetime, timezone
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
 
-# pretty easy to add support for more chat channels?
-GROUP_NAME = 'chat'
 EVENT_TYPE_NEW_MESSAGE = 'new_message'
 
 
 class ChatConsumer(JsonWebsocketConsumer):
     def connect(self):
+        self.chat_channel_id = self.scope['url_route']['kwargs']['channel_id']
         async_to_sync(self.channel_layer.group_add)(
-            GROUP_NAME,
+            self.chat_channel_id,
             self.channel_name,
         )
         self.accept()
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
-            GROUP_NAME,
+            self.chat_channel_id,
             self.channel_name,
         )
 
@@ -28,7 +27,7 @@ class ChatConsumer(JsonWebsocketConsumer):
             timezone.utc).isoformat().replace("+00:00", "Z")
 
         async_to_sync(self.channel_layer.group_send)(
-            GROUP_NAME,
+            self.chat_channel_id,
             {
                 'type': EVENT_TYPE_NEW_MESSAGE,
                 'username': username,
