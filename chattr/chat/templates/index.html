@@ -14,15 +14,36 @@
     <input id="chat-message" type="text" size="60">
 
     <script>
-        document.querySelector('#chat-username').value = `chatter${Math.floor(Math.random() * 1000)}`
+        const username = `chatter${Math.floor(Math.random() * 1000)}`;
+        document.querySelector('#chat-username').value = username;
         const webSocket = new WebSocket(`ws://${window.location.host}/ws/`);
 
-        webSocket.onmessage = function(e) {
-            const d = JSON.parse(e.data);
-            document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.name}: ${d.message}` + '\n');
+        webSocket.onopen = (e) => {
+            webSocket.send(JSON.stringify({
+                'message_type': 'new_chatter',
+                'name': username,
+                'message': ''
+            }));
         };
 
-        document.querySelector('#chat-message').onkeyup = function(e) {
+        webSocket.onmessage = (e) => {
+            const d = JSON.parse(e.data);
+            const messageType = d.message_type;
+
+            switch(messageType) {
+                case 'new_message':
+                    document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.name}: ${d.message}` + '\n');
+                    break;
+                case 'new_chatter':
+                    document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.name} joined` + '\n');
+                    break;
+                default:
+                    console.error('something went wrong when receiving a message');
+                    break;
+            }
+        };
+
+        document.querySelector('#chat-message').onkeyup = (e) => {
             if (e.keyCode === 13) {
                 send();
             }
@@ -33,6 +54,7 @@
             const message = document.querySelector('#chat-message').value;
 
             webSocket.send(JSON.stringify({
+                'message_type': 'new_message',
                 'name': username,
                 'message': message
             }));
