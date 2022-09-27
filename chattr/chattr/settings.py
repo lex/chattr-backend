@@ -121,3 +121,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 ASGI_APPLICATION = 'chattr.asgi.application'
+# redis when
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    },
+}
