@@ -20,27 +20,14 @@
 
         webSocket.onopen = (e) => {
             webSocket.send(JSON.stringify({
-                'message_type': 'new_chatter',
-                'name': username,
-                'message': ''
+                'username': username,
+                'message': 'Hello! I just joined the chat!'
             }));
         };
 
         webSocket.onmessage = (e) => {
             const d = JSON.parse(e.data);
-            const messageType = d.message_type;
-
-            switch(messageType) {
-                case 'new_message':
-                    document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.name}: ${d.message}` + '\n');
-                    break;
-                case 'new_chatter':
-                    document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.name} joined` + '\n');
-                    break;
-                default:
-                    console.error('something went wrong when receiving a message');
-                    break;
-            }
+            document.querySelector('#chat-messages').value += (`${d.timestamp} ${d.username}: ${d.message}` + '\n');
         };
 
         document.querySelector('#chat-message').onkeyup = (e) => {
@@ -54,8 +41,7 @@
             const message = document.querySelector('#chat-message').value;
 
             webSocket.send(JSON.stringify({
-                'message_type': 'new_message',
-                'name': username,
+                'username': username,
                 'message': message
             }));
 
