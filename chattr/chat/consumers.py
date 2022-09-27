@@ -15,6 +15,17 @@ class ChatConsumer(JsonWebsocketConsumer):
         )
         self.accept()
 
+        # send the old messages on connecting
+        channel = Channel.objects.get(pk=self.chat_channel_id)
+        messages = channel.messages.order_by('timestamp').all()
+
+        for message in messages:
+            self.new_message({
+                'username': message.username,
+                'message': message.message,
+                'timestamp': message.timestamp,
+            })
+
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
             self.chat_channel_id,
