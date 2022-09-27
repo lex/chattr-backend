@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
+from .models import Channel, Message
 
 EVENT_TYPE_NEW_MESSAGE = 'new_message'
 
@@ -23,26 +24,25 @@ class ChatConsumer(JsonWebsocketConsumer):
     def receive_json(self, content):
         username = content.get('username', 'undefined')
         message = content.get('message', 'undefined')
-        timestamp = datetime.now(
-            timezone.utc).isoformat().replace("+00:00", "Z")
+
+        channel = Channel.objects.get(pk=self.chat_channel_id)
+        m = Message.objects.create(
+            username=username, message=message, channel=channel)
+        m.save()
 
         async_to_sync(self.channel_layer.group_send)(
             self.chat_channel_id,
             {
                 'type': EVENT_TYPE_NEW_MESSAGE,
-                'username': username,
-                'message': message,
-                'timestamp': timestamp,
+                'username': m.username,
+                'message': m.message,
+                'timestamp': m.timestamp,
             }
         )
 
     def new_message(self, event):
-        username = event['username']
-        message = event['message']
-        timestamp = event['timestamp']
-
         self.send_json({
-            'username': username,
-            'message': message,
-            'timestamp': timestamp,
+            'username': event['username'],
+            'message': event['message'],
+            'timestamp': str(event['timestamp']),
         })
