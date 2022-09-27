@@ -23,4 +23,4 @@ class Message(models.Model):
         return '{} - {}: {}'.format(self.channel, self.username, self.message)
 
     class Meta:
-        ordering = ('timestamp',)
+        ordering = ('-timestamp',)
