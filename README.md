@@ -21,3 +21,14 @@ $ . venv/bin/activate
 # running
 (venv) $ python3 manage.py runserver
 ```
+
+### Production or something
+
+Install Docker, then
+
+```sh
+$ docker build -t chattr:1 .
+$ docker run chattr:1
+```
+
+Don't forget to disable the debug mode and change the secrets. You may need to set some allowed hosts as well.
