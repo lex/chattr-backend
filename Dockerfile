@@ -11,5 +11,5 @@ WORKDIR /code
 RUN pip install -r requirements.txt
 EXPOSE 8000
 
-CMD ["python", "chattr/manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/code/docker-entrypoint.sh"]
 
